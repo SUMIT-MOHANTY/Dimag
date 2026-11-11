@@ -1,0 +1,55 @@
+# Open LMS - Docker Compose Override for Development
+# This file adds hot-reload and development conveniences
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.override.yml up
+#
+# Or set COMPOSE_FILE environment variable:
+#   export COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml
+
+version: '3.8'
+
+services:
+  # Backend with hot reload
+  backend:
+    build:
+      target: runtime
+    volumes:
+      # Mount source code for hot reload
+      - ./backend:/app
+      # Preserve node_modules (don't overwrite with empty host directory)
+      - /app/__pycache__
+      # Uploads directory
+      - ./uploads:/app/uploads
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=1
+    # Override command to use uvicorn with reload
+    command: >
+      sh -c "cd /app && 
+             pip install -r requirements-dev.txt && 
+             alembic upgrade head && 
+             uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload"
+    # Expose port directly for development access
+    ports:
+      - "8000:8000"
+
+  # Frontend development server
+  frontend:
+    build:
+      target: builder
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+  # Nginx - Simplified for development (optional)
+  nginx:
+    profiles:
+      - donotstart
+    # Uncomment above to disable nginx in dev mode
+    # Or use: docker compose up --scale nginx=0
