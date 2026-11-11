@@ -1,0 +1,19 @@
+# SSL Certificate Placeholder
+#
+# This directory is for SSL/TLS certificates.
+# In production, mount your certificates here:
+#
+#   - cert.pem: SSL certificate (can include intermediate certs)
+#   - key.pem: Private key
+#
+# For local development, you can generate self-signed certificates:
+#
+#   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#     -keyout nginx/ssl/key.pem \
+#     -out nginx/ssl/cert.pem \
+#     -subj "/C=US/ST=State/L=City/O=OpenLMS/CN=localhost"
+#
+# For production, use Let's Encrypt or your certificate provider.
+#
+# IMPORTANT: Never commit real certificates to version control!
+# This directory is listed in .gitignore.
